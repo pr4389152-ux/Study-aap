@@ -4,12 +4,16 @@ import sqlite3, os
 app = Flask(__name__)
 app.secret_key = "secret123"
 
-UPLOAD_FOLDER = "static/uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# ---------- PATH FIX ----------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "database.db")
+
+# ---------- FOLDER ----------
+os.makedirs("static/uploads", exist_ok=True)
 
 # ---------- DATABASE ----------
 def init_db():
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     c.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)")
@@ -24,10 +28,10 @@ def init_db():
 init_db()
 
 # ---------- LOGIN ----------
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        conn = sqlite3.connect("database.db")
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username=? AND password=?", 
                   (request.form["username"], request.form["password"]))
@@ -41,10 +45,10 @@ def login():
     return render_template("login.html")
 
 # ---------- REGISTER ----------
-@app.route("/register", methods=["GET", "POST"])
+@app.route("/register", methods=["GET","POST"])
 def register():
     if request.method == "POST":
-        conn = sqlite3.connect("database.db")
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("INSERT INTO users (username,password) VALUES (?,?)",
                   (request.form["username"], request.form["password"]))
@@ -60,7 +64,7 @@ def dashboard():
     if "user" not in session:
         return redirect("/")
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     videos = c.execute("SELECT * FROM videos").fetchall()
@@ -73,17 +77,17 @@ def dashboard():
     return render_template("dashboard.html", videos=videos, notes=notes, pdfs=pdfs, quiz=quiz)
 
 # ---------- ADMIN ----------
-@app.route("/admin", methods=["GET", "POST"])
+@app.route("/admin", methods=["GET","POST"])
 def admin():
     if request.method == "POST":
-        file = request.files["file"]
+        file = request.files.get("file")
         title = request.form.get("title")
 
-        if file:
-            filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+        if file and file.filename != "":
+            filepath = os.path.join("static/uploads", file.filename)
             file.save(filepath)
 
-            conn = sqlite3.connect("database.db")
+            conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
 
             if "video" in request.form:
@@ -102,7 +106,7 @@ def admin():
 def add_note():
     content = request.form["content"]
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("INSERT INTO notes (content) VALUES (?)", (content,))
     conn.commit()
@@ -115,7 +119,7 @@ def add_note():
 def add_quiz():
     data = request.form
 
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     c.execute("INSERT INTO quiz (question,o1,o2,o3,o4,ans) VALUES (?,?,?,?,?,?)",
@@ -134,4 +138,4 @@ def logout():
 
 # ---------- RUN ----------
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000)
