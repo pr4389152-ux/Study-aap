@@ -1,0 +1,19 @@
+<h2>Welcome {{session['user']}}</h2>
+<a href="/logout">Logout</a>
+
+<h3>Videos</h3>
+{% for v in videos %}
+<video width="300" controls>
+  <source src="{{ url_for('static', filename='uploads/' + v[2]) }}">
+</video>
+{% endfor %}
+
+<h3>Notes</h3>
+{% for n in notes %}
+<p>{{ n[1] }}</p>
+{% endfor %}
+
+<h3>PDF</h3>
+{% for p in pdfs %}
+<a href="{{ url_for('static', filename='uploads/' + p[1]) }}">Download PDF</a><br>
+{% endfor %}
