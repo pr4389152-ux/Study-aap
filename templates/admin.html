@@ -1,0 +1,31 @@
+<h2>Admin Panel</h2>
+
+<h3>Upload Video</h3>
+<form method="post" enctype="multipart/form-data">
+<input name="title" placeholder="Title">
+<input type="file" name="file">
+<button name="video">Upload</button>
+</form>
+
+<h3>Upload PDF</h3>
+<form method="post" enctype="multipart/form-data">
+<input type="file" name="file">
+<button name="pdf">Upload</button>
+</form>
+
+<h3>Add Note</h3>
+<form action="/add_note" method="post">
+<input name="content" placeholder="Note">
+<button>Add</button>
+</form>
+
+<h3>Add MCQ</h3>
+<form action="/add_quiz" method="post">
+<input name="q" placeholder="Question"><br>
+<input name="o1" placeholder="Option 1"><br>
+<input name="o2" placeholder="Option 2"><br>
+<input name="o3" placeholder="Option 3"><br>
+<input name="o4" placeholder="Option 4"><br>
+<input name="ans" placeholder="Correct (1-4)"><br>
+<button>Add</button>
+</form>
